@@ -1,0 +1,8 @@
+channel
+movie
+dramma
+annimation
+children
+documentary
+music
+sports

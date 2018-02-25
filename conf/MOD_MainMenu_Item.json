@@ -1,0 +1,29 @@
+{
+	/***
+	* class info file 
+	***/
+	"class": "/Users/developer/guru/MOD_Menu/conf/class_MOD_Menu_Item.txt",
+	"file_append": "_0",
+	/****
+	* HISTOGRAM OF ORIENTED GRADIENTS DESCRIPTOR
+	****/
+	"orientations": 9,
+	"pixels_per_cell": [8, 8],
+	"cells_per_block": [2, 2],
+	"transform_sqrt": 0,
+	"normalize": "L2",
+
+	/* dataset parameters */
+	"feature_file": "/Users/developer/guru/MOD_Menu/feature/mainMenuItem_feature.hdf5",
+	"dataset_xml": "conf/menuItem.xml",
+	"dataset_feature_name": "normal",
+	"dataset_hard_negative": "",
+	"dataset_distract": 1,
+	"dataset_feature_name": "mainMenuItem",
+
+	/* SVC parameters */
+	"multiple_classifier": 0,
+	"sample_cnt": 10000,
+	"classifier_path": "/Users/developer/guru/MOD_Menu/Model/mainMenuItem_classifier.cpickle",
+	"C": 0.01
+}
