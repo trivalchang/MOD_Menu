@@ -34,6 +34,7 @@ def main():
 	ap.add_argument("-v", "--video", required=True, help="Path to the video file")
 	ap.add_argument("-m", "--main", required=True, help="json file main menu configuration")
 	ap.add_argument("-i", "--item", required=True, help="json file menu item configuration")
+	ap.add_argument("-w", "--write", required=False, help="output path for the result")
 	args = vars(ap.parse_args())
 
 	mainMenuConf = Conf(args['main'])
@@ -83,6 +84,11 @@ def main():
 						cells_per_block=mainMenuConf['cells_per_block'], 
 						transform_sqrt=True if mainMenuConf['transform_sqrt']==1 else False, 
 						block_norm=mainMenuConf['normalize'])
+
+	if args['write'] != None:
+		fourcc = cv2.VideoWriter_fourcc(*'XVID')
+		out = cv2.VideoWriter(args['write'],fourcc, 30.0, (1280, 720))
+
 	mainMenuLoc = None
 	mainMenuImg = None
 	bFound = False
@@ -103,7 +109,7 @@ def main():
 			(diff, ratio) = imgDiffRatio(testImg, mainMenuImg)
 			e2 = cv2.getTickCount()
 			time = (e2 - e1)/ cv2.getTickFrequency()
-			print('[{}] ratio {}'.format(frameCnt, ratio))
+			#print('[{}] ratio {}'.format(frameCnt, ratio))
 			if (ratio < 0.1):
 				bFound = True
 				(x, y, w, h) = (mainMenuLoc[0], mainMenuLoc[1], mainMenuLoc[2]-mainMenuLoc[0], mainMenuLoc[3]-mainMenuLoc[1])
@@ -120,6 +126,7 @@ def main():
 									mainMenuConf['mainMenuHOGDistanceThreshold'], 
 									hogParam, 
 									(10, 10), 
+									bMP=False,
 									bVisualize=False)
 			e2 = cv2.getTickCount()
 			time = (e2 - e1)/ cv2.getTickFrequency()
@@ -127,7 +134,7 @@ def main():
 				frameDetectImg = frame[y:y+h, x:x+w]
 
 		if bFound == True:
-			print('[{}] search result time {}, val = {}, loc = {}'.format(frameCnt, time, val, (x, y, w, h)))
+			print('[{}] search result time {}, loc = {}'.format(frameCnt, time, (x, y, w, h)))
 			searchRegion = (x, y, x+w, y+h)
 			mainMenuLoc = (x, y, x+w, y+h)
 			mainMenuImg = frame[y:y+h, x:x+w]
@@ -144,8 +151,7 @@ def main():
 			if rtn==True:
 				fx = fx + x
 				fy = fy + y
-				print('frame detected {}, takes {}'.format((fx, fy, fw, fh), time))
-				cv2.rectangle(frameOrigin, (fx, fy), (fx+fw, fy+fh), (0, 0, 255), 2)
+				cv2.rectangle(frameOrigin, (fx-5, fy-5), (fx+fw+5, fy+fh+5), (255, 0, 0), 2)
 				bh = itemBox[3]-itemBox[1]+1
 				bw = itemBox[2]-itemBox[0]+1
 				roi = frame[fy:fy+bh, fx:fx+bw]
@@ -155,15 +161,21 @@ def main():
 				e2 = cv2.getTickCount()
 				time = (e2 - e1)/ cv2.getTickFrequency()
 				print('    predict {} takes {}'.format(predictIdx, time))
-				cv2.putText(frameOrigin, str(predictIdx), (fx+fw+10, fy+fh), cv2.FONT_HERSHEY_SIMPLEX, 2,(255,0,0),3,cv2.LINE_AA)
+				cv2.putText(frameOrigin, str(predictIdx), (fx+fw+10, fy+fh), cv2.FONT_HERSHEY_SIMPLEX, 2,(0,0,255),3,cv2.LINE_AA)
 
 			key = basics.showResizeImg(frameOrigin, 'result', 1)
+			if args['write'] != None:
+				out.write(frameOrigin)
 		else:
 			print('[{}] Not found, takes  {}'.format(frameCnt, time))
 			key = basics.showResizeImg(frameOrigin, 'result', 1)
-		
+			if args['write'] != None:
+				out.write(frameOrigin)
+
 		if key == ord('q'):
 			break
 		frameCnt = frameCnt + 1
 
+	if args['write'] != None:
+		out.release()
 main()
